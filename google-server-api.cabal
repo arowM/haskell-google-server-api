@@ -33,7 +33,6 @@ library
                      , monad-control >= 1.0
                      , monad-logger >= 0.3
                      , mtl >= 2.2
-                     , read-env-var >= 1.0
                      , RSA >= 2.3
                      , servant >= 0.1
                      , servant-client >= 0.2
