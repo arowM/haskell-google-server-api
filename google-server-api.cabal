@@ -1,5 +1,5 @@
 name:                google-server-api
-version:             0.1.0.0
+version:             0.1.0.1
 synopsis:            Google APIs for server to server applications
 description:
   This library provides a way to use Google API for server to server applications.
