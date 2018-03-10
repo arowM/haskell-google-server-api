@@ -156,6 +156,8 @@ postGmailSend token email =
 toBearer :: Response.Token -> Bearer
 toBearer Response.Token {accessToken} = Bearer $ "Bearer " <> accessToken
 
+{- | Convert `ServantError` to arbitrary error type.
+-}
 run ::
      forall r m a e.
      ( HasHttpManager r
@@ -163,14 +165,13 @@ run ::
      , MonadError e m
      , MonadLogger m
      , MonadReader r m
-     , Show e
      )
   => e
-  -> ReaderT r (ExceptT e IO) a
+  -> ReaderT r (ExceptT ServantError IO) a
   -> m a
 run err m = either doGoogleErr pure =<< run' m
   where
-    doGoogleErr :: forall x. e -> m x
+    doGoogleErr :: forall x. ServantError -> m x
     doGoogleErr googleErr = do
       $(logError) $ "Got error response from google API: " <> tshow googleErr
       throwError err
