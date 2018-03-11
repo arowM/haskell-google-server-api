@@ -1,5 +1,5 @@
 name:                google-server-api
-version:             0.1.0.1
+version:             0.2.0.0
 synopsis:            Google APIs for server to server applications
 description:
   This library provides a way to use Google API for server to server applications.
@@ -20,8 +20,8 @@ library
                      , Google.Form
                      , Google.JWT
                      , Google.Response
-  build-depends:       base >= 4.10 && < 5
-                     , aeson >= 1.2
+  build-depends:       base >= 4.9 && < 5
+                     , aeson >= 1.1
                      , aeson-casing >= 0.1
                      , base64-bytestring >= 1.0
                      , bytestring >= 0.10
@@ -37,7 +37,7 @@ library
                      , servant >= 0.1
                      , servant-client >= 0.2
                      , text >= 1.2
-                     , time >= 1.8
+                     , time >= 1.6
                      , transformers >= 0.5
                      , transformers-base >= 0.4
                      , unix-time >= 0.3
