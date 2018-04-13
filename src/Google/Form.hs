@@ -18,6 +18,7 @@ module Google.Form
 import Data.Aeson.TH (defaultOptions, deriveJSON)
 import Data.Maybe (maybeToList)
 import Data.Monoid ((<>))
+import Data.String (IsString(..))
 import Data.Text (Text)
 import Data.Text.Lazy (fromStrict)
 import Data.Time.Clock (UTCTime)
@@ -34,6 +35,9 @@ data Account = Account
   } deriving (Eq, Generic, Show, Typeable)
 
 deriveJSON defaultOptions ''Account
+
+instance IsString Account where
+  fromString = Account . fromString
 
 data DateTime = DateTime
   { dateTime :: UTCTime
