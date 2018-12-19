@@ -58,30 +58,30 @@ default-extensions:
 
 dependencies:
   - base >= 4.9 && < 5
-  - aeson >= 1.1
-  - aeson-casing >= 0.1
-  - base64-bytestring >= 1.0
-  - bytestring >= 0.10
-  - http-api-data >= 0.3
-  - http-client >= 0.3
-  - http-client-tls >= 0.3
-  - HsOpenSSL >= 0.11
-  - mime-mail >= 0.4
-  - monad-control >= 1.0
-  - monad-logger >= 0.3
-  - mtl >= 2.2
-  - RSA >= 2.3
-  - servant >= 0.1
-  - servant-client >= 0.2
-  - text >= 1.2
-  - time >= 1.6
-  - transformers >= 0.5
-  - transformers-base >= 0.4
-  - unix-time >= 0.3
-  - unordered-containers >= 0.2
-  - wai >= 3.2
-  - wai-extra >= 3.0
-  - warp >= 3.2
+  - HsOpenSSL >= 0.11.4.13
+  - RSA >= 2.3.0
+  - aeson >= 1.2.4.0
+  - aeson-casing >= 0.1.0.5
+  - base64-bytestring >= 1.0.0.1
+  - bytestring >= 0.10.8.2
+  - http-api-data >= 0.3.7.2
+  - http-client >= 0.5.10
+  - http-client-tls >= 0.3.5.3
+  - mime-mail >= 0.4.14
+  - monad-control >= 1.0.2.3
+  - monad-logger >= 0.3.28.1
+  - mtl >= 2.2.2
+  - servant >= 0.13
+  - servant-client >= 0.13
+  - text >= 1.2.3.0
+  - time >= 1.8.0.2
+  - transformers >= 0.5.2.0
+  - transformers-base >= 0.4.4
+  - unix-time >= 0.3.8
+  - unordered-containers >= 0.2.9.0
+  - wai >= 3.2.1.1
+  - wai-extra >= 3.0.22.0
+  - warp >= 3.2.18.1
 
 library:
   source-dirs:

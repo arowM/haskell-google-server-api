@@ -39,11 +39,11 @@ import Servant.API
   )
 import Servant.Client
   ( BaseUrl(BaseUrl)
-  , ClientEnv(..)
   , ClientM
   , Scheme(..)
   , ServantError
   , client
+  , mkClientEnv
   , runClientM
   )
 
@@ -107,7 +107,7 @@ getToken maccount jwt scopes = do
        { grantType = googleGrantType
        , assertion = decodeUtf8 . JWT.unSignedJWT $ a
        })
-    (ClientEnv manager googleBaseUrl)
+    (mkClientEnv manager googleBaseUrl)
 
 postCalendarEvent ::
      Response.Token
@@ -120,7 +120,7 @@ postCalendarEvent token event = do
        (Form.email . Form.creator $ event)
        (pure . toBearer $ token)
        event)
-    (ClientEnv manager googleBaseUrl)
+    (mkClientEnv manager googleBaseUrl)
 
 postGmailSend ::
      Response.Token -> Form.Email -> IO (Either ServantError Response.GmailSend)
@@ -130,7 +130,7 @@ postGmailSend token email = do
   let gmailSend = Form.GmailSend {raw = decodeUtf8 $ encode $ LBS.toStrict mail}
   runClientM
     (postGmailSend' (pure . toBearer $ token) gmailSend)
-    (ClientEnv manager googleBaseUrl)
+    (mkClientEnv manager googleBaseUrl)
 
 toBearer :: Response.Token -> Bearer
 toBearer Response.Token {accessToken} = Bearer $ "Bearer " <> accessToken
