@@ -1,0 +1,95 @@
+name: google-server-api
+version: "0.2.0.1"
+category: "Web"
+synopsis: "Google APIs for server to server applications"
+description:
+  This library provides a way to use Google API for server to server applications.
+license: "MIT"
+author: "Kadzuya Okamoto"
+copyright: "2018 Kadzuya Okamoto"
+maintainer: "arow.okamoto+github@gmail.com"
+
+extra-source-files:
+  - README.md
+
+ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -Werror
+default-extensions:
+  - AutoDeriveTypeable
+  - BangPatterns
+  - BinaryLiterals
+  - ConstraintKinds
+  - DataKinds
+  - DefaultSignatures
+  - DeriveDataTypeable
+  - DeriveFoldable
+  - DeriveFunctor
+  - DeriveGeneric
+  - DeriveTraversable
+  - DoAndIfThenElse
+  - DuplicateRecordFields
+  - EmptyDataDecls
+  - ExistentialQuantification
+  - FlexibleContexts
+  - FlexibleInstances
+  - FunctionalDependencies
+  - GADTs
+  - GeneralizedNewtypeDeriving
+  - InstanceSigs
+  - KindSignatures
+  - LambdaCase
+  - MonadFailDesugaring
+  - MultiParamTypeClasses
+  - MultiWayIf
+  - NamedFieldPuns
+  - OverloadedStrings
+  - PartialTypeSignatures
+  - PatternGuards
+  - PolyKinds
+  - RankNTypes
+  - RecordWildCards
+  - ScopedTypeVariables
+  - StandaloneDeriving
+  - Strict
+  - StrictData
+  - TupleSections
+  - TypeFamilies
+  - TypeSynonymInstances
+  - ViewPatterns
+
+dependencies:
+  - base >= 4.9 && < 5
+  - aeson >= 1.1
+  - aeson-casing >= 0.1
+  - base64-bytestring >= 1.0
+  - bytestring >= 0.10
+  - http-api-data >= 0.3
+  - http-client >= 0.3
+  - http-client-tls >= 0.3
+  - HsOpenSSL >= 0.11
+  - mime-mail >= 0.4
+  - monad-control >= 1.0
+  - monad-logger >= 0.3
+  - mtl >= 2.2
+  - RSA >= 2.3
+  - servant >= 0.1
+  - servant-client >= 0.2
+  - text >= 1.2
+  - time >= 1.6
+  - transformers >= 0.5
+  - transformers-base >= 0.4
+  - unix-time >= 0.3
+  - unordered-containers >= 0.2
+  - wai >= 3.2
+  - wai-extra >= 3.0
+  - warp >= 3.2
+
+library:
+  source-dirs:
+    - src
+  exposed-modules:
+    - Google.Client
+    - Google.Form
+    - Google.JWT
+    - Google.Response
+
+github: arowM/haskell-google-server-api
