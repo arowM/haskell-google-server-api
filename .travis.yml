@@ -33,9 +33,6 @@ cache:
 # matrix, you can use a line such as:
 #     addons: {apt: {packages: [libfcgi-dev,libgmp-dev]}}
 matrix:
-  # Make the build finish as soon as all of the non-"allowed_failures" builds
-  # are finished building.  Don't wait for the "allowed_failures" to finish.
-  fast_finish: true
   include:
   # We grab the appropriate GHC and cabal-install versions from hvr's PPA. See:
   # https://github.com/hvr/multi-ghc-travis
@@ -219,7 +216,7 @@ script:
   set -ex
   case "$BUILD" in
     stack)
-      stack --no-terminal $ARGS test --bench --no-run-benchmarks --haddock --no-haddock-deps --flag tonaparser:buildexample
+      stack --no-terminal $ARGS test --bench --no-run-benchmarks --haddock --no-haddock-deps
       ;;
     cabal)
       cabal install --enable-tests --enable-benchmarks --force-reinstalls --ghc-options=-O0 --reorder-goals --max-backjumps=-1 $CABALARGS $PACKAGES
