@@ -8,6 +8,7 @@ Define functions to call Google APIs.
 -}
 module Google.Client
   ( getToken
+  , getCalendarEventList
   , postCalendarEvent
   , postGmailSend
   ) where
@@ -31,9 +32,11 @@ import Servant.API
   , Capture
   , FormUrlEncoded
   , FromHttpApiData
+  , Get
   , Header
   , JSON
   , Post
+  , QueryParam
   , ReqBody
   , ToHttpApiData
   )
@@ -74,6 +77,15 @@ type API
     Capture "calendarId" Text :>
     "events" :>
     Header "Authorization" Bearer :>
+    QueryParam "singleEvents" Bool :>
+    QueryParam "timeMin" Form.DateTime :>
+    QueryParam "timeMax" Form.DateTime :>
+    QueryParam "orderBy" Text :>
+    Get '[ JSON] Response.CalendarEventList
+  :<|> "calendar" :> "v3" :> "calendars" :>
+    Capture "calendarId" Text :>
+    "events" :>
+    Header "Authorization" Bearer :>
     ReqBody '[ JSON] Form.CalendarEvent :>
     Post '[ JSON] Response.CalendarEvent
   :<|> "gmail" :> "v1" :> "users" :> "me" :> "messages" :> "send" :>
@@ -85,13 +97,21 @@ api :: Proxy API
 api = Proxy
 
 getToken' :: Form.Token -> ClientM Response.Token
+getCalendarEventList' ::
+     Text
+  -> Maybe Bearer
+  -> Maybe Bool
+  -> Maybe Form.DateTime
+  -> Maybe Form.DateTime
+  -> Maybe Text
+  -> ClientM Response.CalendarEventList
 postCalendarEvent' ::
      Text
   -> Maybe Bearer
   -> Form.CalendarEvent
   -> ClientM Response.CalendarEvent
 postGmailSend' :: Maybe Bearer -> Form.GmailSend -> ClientM Response.GmailSend
-getToken' :<|> postCalendarEvent' :<|> postGmailSend' = client api
+getToken' :<|> getCalendarEventList' :<|> postCalendarEvent' :<|> postGmailSend' = client api
 
 getToken ::
      Maybe JWT.Email
@@ -107,6 +127,26 @@ getToken maccount jwt scopes = do
        { grantType = googleGrantType
        , assertion = decodeUtf8 . JWT.unSignedJWT $ a
        })
+    (mkClientEnv manager googleBaseUrl)
+
+getCalendarEventList ::
+     Response.Token
+  -> Text
+  -> Maybe Bool
+  -> Maybe Form.DateTime
+  -> Maybe Form.DateTime
+  -> Maybe Text
+  -> IO (Either ServantError Response.CalendarEventList)
+getCalendarEventList token calendarId singleEvents timeMin timeMax orderBy = do
+  manager <- newManager tlsManagerSettings
+  runClientM
+    (getCalendarEventList'
+       calendarId
+       (pure . toBearer $ token)
+       singleEvents
+       timeMin
+       timeMax
+       orderBy)
     (mkClientEnv manager googleBaseUrl)
 
 postCalendarEvent ::
