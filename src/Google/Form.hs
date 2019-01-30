@@ -27,6 +27,7 @@ import GHC.Generics (Generic)
 import Network.Mail.Mime (Address(..), Mail(..), renderAddress, simpleMail)
 import Web.FormUrlEncoded (Form(..), ToForm(toForm))
 import Web.Internal.HttpApiData (toQueryParam)
+import Web.HttpApiData (ToHttpApiData(..))
 
 import qualified Data.HashMap.Strict as HashMap
 
@@ -39,9 +40,9 @@ deriveJSON defaultOptions ''Account
 instance IsString Account where
   fromString = Account . fromString
 
-data DateTime = DateTime
+newtype DateTime = DateTime
   { dateTime :: UTCTime
-  } deriving (Eq, Generic, Show, Typeable)
+  } deriving (Eq, Generic, Show, Typeable, ToHttpApiData)
 
 deriveJSON defaultOptions ''DateTime
 
