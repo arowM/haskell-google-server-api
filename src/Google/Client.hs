@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeOperators #-}
 
@@ -44,7 +45,11 @@ import Servant.Client
   ( BaseUrl(BaseUrl)
   , ClientM
   , Scheme(..)
+#if MIN_VERSION_servant(0, 16, 0)
+  , ClientError
+#else
   , ServantError
+#endif
   , client
   , mkClientEnv
   , runClientM
@@ -54,6 +59,10 @@ import qualified Google.Form as Form
 import Google.JWT (JWT)
 import qualified Google.JWT as JWT
 import qualified Google.Response as Response
+
+#if !MIN_VERSION_servant(0, 16, 0)
+type ClientError = ServantError
+#endif
 
 newtype Bearer = Bearer
   { _unBearer :: Text
@@ -117,7 +126,7 @@ getToken ::
      Maybe JWT.Email
   -> JWT
   -> [JWT.Scope]
-  -> IO (Either ServantError Response.Token)
+  -> IO (Either ClientError Response.Token)
 getToken maccount jwt scopes = do
   manager <- newManager tlsManagerSettings
   Right a <- JWT.getSignedJWT jwt maccount scopes Nothing
@@ -136,7 +145,7 @@ getCalendarEventList ::
   -> Maybe Form.DateTime
   -> Maybe Form.DateTime
   -> Maybe Text
-  -> IO (Either ServantError Response.CalendarEventList)
+  -> IO (Either ClientError Response.CalendarEventList)
 getCalendarEventList token calendarId singleEvents timeMin timeMax orderBy = do
   manager <- newManager tlsManagerSettings
   runClientM
@@ -152,7 +161,7 @@ getCalendarEventList token calendarId singleEvents timeMin timeMax orderBy = do
 postCalendarEvent ::
      Response.Token
   -> Form.CalendarEvent
-  -> IO (Either ServantError Response.CalendarEvent)
+  -> IO (Either ClientError Response.CalendarEvent)
 postCalendarEvent token event = do
   manager <- newManager tlsManagerSettings
   runClientM
@@ -163,7 +172,7 @@ postCalendarEvent token event = do
     (mkClientEnv manager googleBaseUrl)
 
 postGmailSend ::
-     Response.Token -> Form.Email -> IO (Either ServantError Response.GmailSend)
+     Response.Token -> Form.Email -> IO (Either ClientError Response.GmailSend)
 postGmailSend token email = do
   manager <- newManager tlsManagerSettings
   mail <- (renderMail' =<< Form.toMail email)
