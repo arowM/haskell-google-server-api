@@ -12,10 +12,13 @@ module Google.Form
   , DateTime(..)
   , Email(..)
   , toMail
+  , FileResource(..)
+  , MultipartBody(..)
   , Token(..)
   ) where
 
 import Data.Aeson.TH (defaultOptions, deriveJSON)
+import qualified Data.ByteString as BS
 import Data.Maybe (maybeToList)
 import Data.Monoid ((<>))
 import Data.String (IsString(..))
@@ -106,3 +109,19 @@ data GmailSend = GmailSend
   } deriving (Eq, Generic, Show, Typeable)
 
 deriveJSON defaultOptions ''GmailSend
+
+
+data FileResource = FileResource
+  { name :: Maybe Text
+  , mimeType :: Maybe Text
+  , parents :: Maybe [Text]
+  } deriving (Eq, Generic, Show, Typeable)
+
+deriveJSON defaultOptions ''FileResource
+
+
+data MultipartBody = MultipartBody
+  { metadata :: FileResource
+  , mediaType :: Text
+  , mediaContent :: BS.ByteString
+  }

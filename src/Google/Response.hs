@@ -102,3 +102,28 @@ deriveJSON defaultOptions ''GmailSend
 instance FromForm GmailSend
 
 instance ToForm GmailSend
+
+
+data FileResource = FileResource
+  { kind :: Text
+  , id :: Text
+  , name :: Text
+  , mimeType :: Text
+  } deriving (Eq, Generic, Show, Typeable)
+
+deriveJSON defaultOptions ''FileResource
+
+
+data FileList = FileList
+  { kind :: Text
+  , files :: [FileResource]
+  } deriving (Eq, Generic, Show, Typeable)
+
+deriveJSON defaultOptions ''FileList
+
+
+data File = File
+  { body :: Text
+  } deriving (Eq, Generic, Show, Typeable)
+
+deriveJSON defaultOptions ''File
