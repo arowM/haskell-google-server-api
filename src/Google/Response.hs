@@ -19,9 +19,11 @@ import GHC.Generics (Generic)
 import Web.FormUrlEncoded (FromForm, ToForm)
 import Data.Time.Clock (UTCTime)
 import Data.Time.LocalTime (ZonedTime, zonedTimeToUTC)
-import Network.HTTP.Media ((//))
 import Servant.API (Accept(..), MimeUnrender(..))
 import Web.HttpApiData (FromHttpApiData(..), ToHttpApiData(..), parseUrlPieces, toUrlPieces)
+
+import Google.Form (ConversionFormat(..), fromFormat)
+
 
 data Token = Token
   { accessToken :: Text
@@ -71,7 +73,6 @@ instance Eq ZonedDateTime where
         (toUTC x) == (toUTC y)
     )
 
-
 data CalendarEvent = CalendarEvent
   { status :: Text
   , creator :: Account
@@ -109,11 +110,25 @@ instance FromForm GmailSend
 instance ToForm GmailSend
 
 
+newtype FileId = FileId
+  { fileId :: Text
+  } deriving (Eq, Generic, Show, Typeable)
+
+deriveJSON defaultOptions {unwrapUnaryRecords = True} ''FileId
+
+
+newtype MediaType = MediaType
+  { mediaTypeName :: Text
+  } deriving (Eq, Generic, Show, Typeable)
+
+deriveJSON defaultOptions {unwrapUnaryRecords = True} ''MediaType
+
+
 data FileResource = FileResource
   { kind :: Text
-  , id :: Text
+  , id :: FileId
   , name :: Text
-  , mimeType :: Text
+  , mimeType :: MediaType
   } deriving (Eq, Generic, Show, Typeable)
 
 deriveJSON defaultOptions ''FileResource
@@ -127,23 +142,24 @@ data FileList = FileList
 deriveJSON defaultOptions ''FileList
 
 
-data File = File
-  { body :: Text
-  } deriving (Eq, Generic, Show, Typeable)
-
-deriveJSON defaultOptions ''File
-
-
 data Arbitrary
-  deriving Typeable
 
 instance Accept Arbitrary where
   contentTypes _ =
-    ( "text" // "plain" ) :|
-    [ "text" // "html"
-    , "application" // "pdf"
-    -- , other content type
-    ]
+    fromFormat <$>
+      FormatHtml :|
+        [ FormatHtmlZipped
+        , FormatPlainText
+        , FormatRichText
+        , FormatOpenOfficeDoc
+        , FormatPdf
+        , FormatMsWordDoc
+        , FormatEpub
+        ]
 
-instance MimeUnrender Arbitrary BS.ByteString where
-  mimeUnrender _ = Right . LBS.toStrict
+newtype MediaContent = MediaContent
+  { content :: BS.ByteString
+  } deriving (Eq, Generic, Show, Typeable)
+
+instance MimeUnrender Arbitrary MediaContent where
+  mimeUnrender _ = Right . MediaContent . LBS.toStrict

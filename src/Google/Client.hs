@@ -19,7 +19,6 @@ module Google.Client
 
 import Data.Aeson (FromJSON, ToJSON)
 import Data.ByteString.Base64.URL (encode)
-import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as LBS
 import Data.Data (Data)
 import Data.Monoid ((<>))
@@ -107,8 +106,8 @@ type API
     Post '[ JSON] Response.GmailSend
   :<|> "drive":> "v3" :> "files" :>
     Header "Authorization" Bearer :>
-    QueryParam "q" Text :>
-    QueryParam "orderBy" Text :>
+    QueryParam "q" Form.QueryString :>
+    QueryParam "orderBy" [Form.Order] :>
     Get '[ JSON] Response.FileList
   :<|> "upload" :> "drive":> "v3" :> "files" :>
     Header "Authorization" Bearer :>
@@ -116,11 +115,11 @@ type API
     ReqBody '[ Form.Multipart] Form.MultipartBody :>
     Post '[ JSON] Response.FileResource
   :<|> "drive":> "v3" :> "files" :>
-    Capture "fileId" Text :>
+    Capture "fileId" Form.FileId :>
     "export" :>
     Header "Authorization" Bearer :>
-    QueryParam "mimeType" Text :>
-    Get '[ Response.Arbitrary] BS.ByteString
+    QueryParam "mimeType" Form.ConversionFormat :>
+    Get '[ Response.Arbitrary] Response.MediaContent
 
 
 
@@ -144,8 +143,8 @@ postCalendarEvent' ::
 postGmailSend' :: Maybe Bearer -> Form.GmailSend -> ClientM Response.GmailSend
 getDriveFileList' ::
      Maybe Bearer
-  -> Maybe Text
-  -> Maybe Text
+  -> Maybe Form.QueryString
+  -> Maybe [Form.Order]
   -> ClientM Response.FileList
 createDriveFileMultipart' ::
      Maybe Bearer
@@ -153,10 +152,10 @@ createDriveFileMultipart' ::
   -> Form.MultipartBody
   -> ClientM Response.FileResource
 downloadDriveFile' ::
-     Text
+     Form.FileId
   -> Maybe Bearer
-  -> Maybe Text
-  -> ClientM BS.ByteString
+  -> Maybe Form.ConversionFormat
+  -> ClientM Response.MediaContent
 getToken'
   :<|> getCalendarEventList'
   :<|> postCalendarEvent'
@@ -227,8 +226,8 @@ postGmailSend token email = do
 
 getDriveFileList ::
      Response.Token
-  -> Maybe Text
-  -> Maybe Text
+  -> Maybe Form.QueryString
+  -> Maybe [Form.Order]
   -> IO (Either ServantError Response.FileList)
 getDriveFileList token query orderBy = do
   manager <- newManager tlsManagerSettings
@@ -254,16 +253,16 @@ createDriveFileMultipart token body = do
 
 downloadDriveFile ::
      Response.Token
-  -> Text
-  -> Text
-  -> IO (Either ServantError BS.ByteString)
-downloadDriveFile token fileId mimeType = do
+  -> Form.FileId
+  -> Form.ConversionFormat
+  -> IO (Either ServantError Response.MediaContent)
+downloadDriveFile token fileId format = do
   manager <- newManager tlsManagerSettings
   runClientM
     (downloadDriveFile'
        fileId
        (pure . toBearer $ token)
-       (Just mimeType))
+       (Just format))
     (mkClientEnv manager googleBaseUrl)
 
 toBearer :: Response.Token -> Bearer
