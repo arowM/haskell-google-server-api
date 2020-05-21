@@ -14,7 +14,7 @@ module Google.Client
   , postGmailSend
   , getDriveFileList
   , createDriveFileMultipart
-  , exportDriveFile
+  , downloadDriveFile
   ) where
 
 import Data.Aeson (FromJSON, ToJSON)
@@ -152,7 +152,7 @@ createDriveFileMultipart' ::
   -> Maybe Text
   -> Form.MultipartBody
   -> ClientM Response.FileResource
-exportDriveFile' ::
+downloadDriveFile' ::
      Text
   -> Maybe Bearer
   -> Maybe Text
@@ -163,7 +163,7 @@ getToken'
   :<|> postGmailSend'
   :<|> getDriveFileList'
   :<|> createDriveFileMultipart'
-  :<|> exportDriveFile'
+  :<|> downloadDriveFile'
   = client api
 
 getToken ::
@@ -252,15 +252,15 @@ createDriveFileMultipart token body = do
       body)
     (mkClientEnv manager googleBaseUrl)
 
-exportDriveFile ::
+downloadDriveFile ::
      Response.Token
   -> Text
   -> Text
   -> IO (Either ServantError BS.ByteString)
-exportDriveFile token fileId mimeType = do
+downloadDriveFile token fileId mimeType = do
   manager <- newManager tlsManagerSettings
   runClientM
-    (exportDriveFile'
+    (downloadDriveFile'
        fileId
        (pure . toBearer $ token)
        (Just mimeType))
