@@ -13,25 +13,31 @@ module Google.Form
   , Email(..)
   , toMail
   , FileResource(..)
+  , Multipart
   , MultipartBody(..)
   , Token(..)
   ) where
 
+import Data.Aeson (encode)
 import Data.Aeson.TH (defaultOptions, deriveJSON)
 import qualified Data.ByteString as BS
+import qualified Data.ByteString.Base64 as BSB
+import qualified Data.ByteString.Lazy as LBS
 import Data.Maybe (maybeToList)
 import Data.Monoid ((<>))
 import Data.String (IsString(..))
 import Data.Text (Text)
+import Data.Text.Encoding (encodeUtf8)
 import Data.Text.Lazy (fromStrict)
 import Data.Time.Clock (UTCTime)
 import Data.Typeable (Typeable)
 import GHC.Generics (Generic)
+import Network.HTTP.Media ((//), (/:))
 import Network.Mail.Mime (Address(..), Mail(..), renderAddress, simpleMail)
+import Servant.API (Accept(..), MimeRender(..))
 import Web.FormUrlEncoded (Form(..), ToForm(toForm))
 import Web.Internal.HttpApiData (toQueryParam)
 import Web.HttpApiData (ToHttpApiData(..))
-
 import qualified Data.HashMap.Strict as HashMap
 
 data Account = Account
@@ -120,8 +126,32 @@ data FileResource = FileResource
 deriveJSON defaultOptions ''FileResource
 
 
+data Multipart
+
+boundary :: LBS.ByteString
+boundary = "314159265358979323846"
+
+instance Accept Multipart where
+  contentType _ = "multipart" // "related" /: ("boundary", LBS.toStrict boundary)
+
 data MultipartBody = MultipartBody
   { metadata :: FileResource
   , mediaType :: Text
   , mediaContent :: BS.ByteString
-  }
+  } deriving (Eq, Generic, Show, Typeable)
+
+instance MimeRender Multipart MultipartBody where
+  mimeRender _ MultipartBody{..} =
+    mconcat
+      [ "\r\n--" <> boundary <> "\r\n"
+      , "Content-Type: application/json; charset=UTF-8"
+      , "\r\n\r\n"
+      , encode metadata
+      , "\r\n--" <> boundary <> "\r\n"
+      , "Content-Type: " <> (LBS.fromStrict $ encodeUtf8 mediaType)
+      , "\r\n"
+      , "Content-Transfer-Encoding: base64"
+      , "\r\n\r\n"
+      , LBS.fromStrict $ BSB.encode mediaContent
+      , "\r\n--" <> boundary <> "--"
+      ]

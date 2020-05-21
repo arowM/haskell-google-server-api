@@ -63,7 +63,6 @@ import qualified Google.Form as Form
 import Google.JWT (JWT)
 import qualified Google.JWT as JWT
 import qualified Google.Response as Response
-import Google.Types (Multipart, Arbitrary)
 
 #if !MIN_VERSION_servant(0, 16, 0)
 type ClientError = ServantError
@@ -114,14 +113,14 @@ type API
   :<|> "upload" :> "drive":> "v3" :> "files" :>
     Header "Authorization" Bearer :>
     QueryParam "uploadType" Text :>
-    ReqBody '[ Multipart] Form.MultipartBody :>
+    ReqBody '[ Form.Multipart] Form.MultipartBody :>
     Post '[ JSON] Response.FileResource
   :<|> "drive":> "v3" :> "files" :>
     Capture "fileId" Text :>
     "export" :>
     Header "Authorization" Bearer :>
     QueryParam "mimeType" Text :>
-    Get '[ Arbitrary] BS.ByteString
+    Get '[ Response.Arbitrary] BS.ByteString
 
 
 

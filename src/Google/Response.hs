@@ -9,6 +9,9 @@ module Google.Response where
 
 import Data.Aeson.Casing (snakeCase)
 import Data.Aeson.TH (Options(..), defaultOptions, deriveJSON)
+import qualified Data.ByteString as BS
+import qualified Data.ByteString.Lazy as LBS
+import Data.List.NonEmpty (NonEmpty((:|)))
 import Data.Text (Text)
 import Data.Text (intercalate, splitOn)
 import Data.Typeable (Typeable)
@@ -16,6 +19,8 @@ import GHC.Generics (Generic)
 import Web.FormUrlEncoded (FromForm, ToForm)
 import Data.Time.Clock (UTCTime)
 import Data.Time.LocalTime (ZonedTime, zonedTimeToUTC)
+import Network.HTTP.Media ((//))
+import Servant.API (Accept(..), MimeUnrender(..))
 import Web.HttpApiData (FromHttpApiData(..), ToHttpApiData(..), parseUrlPieces, toUrlPieces)
 
 data Token = Token
@@ -127,3 +132,18 @@ data File = File
   } deriving (Eq, Generic, Show, Typeable)
 
 deriveJSON defaultOptions ''File
+
+
+data Arbitrary
+  deriving Typeable
+
+instance Accept Arbitrary where
+  contentTypes _ =
+    ( "text" // "plain" ) :|
+    [ "text" // "html"
+    , "application" // "pdf"
+    -- , other content type
+    ]
+
+instance MimeUnrender Arbitrary BS.ByteString where
+  mimeUnrender _ = Right . LBS.toStrict
