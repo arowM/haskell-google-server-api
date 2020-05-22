@@ -23,6 +23,7 @@ import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as LBS
 import Data.Char (toLower)
 import Data.List.NonEmpty (NonEmpty((:|)))
+import Data.Monoid ((<>))
 import Data.Text (Text, intercalate)
 import Data.Typeable (Typeable)
 import GHC.Generics (Generic)
