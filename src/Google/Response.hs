@@ -5,13 +5,21 @@ Module      :  Google.Response
 
 Define data types to represent all of the responses that are received from the Google API.
 -}
-module Google.Response where
+module Google.Response
+  ( Token(..)
+  , Account(..)
+  , DateTime(..)
+  , ZonedDateTime(..)
+  , CalendarEvent(..)
+  , CalendarEventList(..)
+  , GmailSend(..)
+  , FileResource(..)
+  , FileList(..)
+  , MediaContent(..)
+  ) where
 
 import Data.Aeson.Casing (snakeCase)
 import Data.Aeson.TH (Options(..), defaultOptions, deriveJSON)
-import qualified Data.ByteString as BS
-import qualified Data.ByteString.Lazy as LBS
-import Data.List.NonEmpty (NonEmpty((:|)))
 import Data.Text (Text)
 import Data.Text (intercalate, splitOn)
 import Data.Typeable (Typeable)
@@ -19,10 +27,9 @@ import GHC.Generics (Generic)
 import Web.FormUrlEncoded (FromForm, ToForm)
 import Data.Time.Clock (UTCTime)
 import Data.Time.LocalTime (ZonedTime, zonedTimeToUTC)
-import Servant.API (Accept(..), MimeUnrender(..))
 import Web.HttpApiData (FromHttpApiData(..), ToHttpApiData(..), parseUrlPieces, toUrlPieces)
 
-import Google.Form (ConversionFormat(..), fromFormat)
+import Google.Type (FileId, MediaType, MediaContent(..))
 
 
 data Token = Token
@@ -110,20 +117,6 @@ instance FromForm GmailSend
 instance ToForm GmailSend
 
 
-newtype FileId = FileId
-  { fileId :: Text
-  } deriving (Eq, Generic, Show, Typeable)
-
-deriveJSON defaultOptions {unwrapUnaryRecords = True} ''FileId
-
-
-newtype MediaType = MediaType
-  { mediaTypeName :: Text
-  } deriving (Eq, Generic, Show, Typeable)
-
-deriveJSON defaultOptions {unwrapUnaryRecords = True} ''MediaType
-
-
 data FileResource = FileResource
   { kind :: Text
   , id :: FileId
@@ -140,26 +133,3 @@ data FileList = FileList
   } deriving (Eq, Generic, Show, Typeable)
 
 deriveJSON defaultOptions ''FileList
-
-
-data Arbitrary
-
-instance Accept Arbitrary where
-  contentTypes _ =
-    fromFormat <$>
-      FormatHtml :|
-        [ FormatHtmlZipped
-        , FormatPlainText
-        , FormatRichText
-        , FormatOpenOfficeDoc
-        , FormatPdf
-        , FormatMsWordDoc
-        , FormatEpub
-        ]
-
-newtype MediaContent = MediaContent
-  { content :: BS.ByteString
-  } deriving (Eq, Generic, Show, Typeable)
-
-instance MimeUnrender Arbitrary MediaContent where
-  mimeUnrender _ = Right . MediaContent . LBS.toStrict

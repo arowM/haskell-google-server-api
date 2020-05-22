@@ -92,5 +92,6 @@ library:
     - Google.Form
     - Google.JWT
     - Google.Response
+    - Google.Type
 
 github: arowM/haskell-google-server-api
