@@ -12,6 +12,9 @@ module Google.Client
   , getCalendarEventList
   , postCalendarEvent
   , postGmailSend
+  , getDriveFileList
+  , createDriveFileMultipart
+  , downloadDriveFile
   ) where
 
 import Data.Aeson (FromJSON, ToJSON)
@@ -59,6 +62,7 @@ import qualified Google.Form as Form
 import Google.JWT (JWT)
 import qualified Google.JWT as JWT
 import qualified Google.Response as Response
+import qualified Google.Type as Type
 
 #if !MIN_VERSION_servant(0, 16, 0)
 type ClientError = ServantError
@@ -101,6 +105,24 @@ type API
     Header "Authorization" Bearer :>
     ReqBody '[ JSON] Form.GmailSend :>
     Post '[ JSON] Response.GmailSend
+  :<|> "drive":> "v3" :> "files" :>
+    Header "Authorization" Bearer :>
+    QueryParam "q" Type.QueryString :>
+    QueryParam "orderBy" [Type.Order] :>
+    Get '[ JSON] Response.FileList
+  :<|> "upload" :> "drive":> "v3" :> "files" :>
+    Header "Authorization" Bearer :>
+    QueryParam "uploadType" Text :>
+    ReqBody '[ Type.Multipart] Form.MultipartBody :>
+    Post '[ JSON] Response.FileResource
+  :<|> "drive":> "v3" :> "files" :>
+    Capture "fileId" Type.FileId :>
+    "export" :>
+    Header "Authorization" Bearer :>
+    QueryParam "mimeType" Type.ConversionFormat :>
+    Get '[ Type.Arbitrary] Type.MediaContent
+
+
 
 api :: Proxy API
 api = Proxy
@@ -120,7 +142,29 @@ postCalendarEvent' ::
   -> Form.CalendarEvent
   -> ClientM Response.CalendarEvent
 postGmailSend' :: Maybe Bearer -> Form.GmailSend -> ClientM Response.GmailSend
-getToken' :<|> getCalendarEventList' :<|> postCalendarEvent' :<|> postGmailSend' = client api
+getDriveFileList' ::
+     Maybe Bearer
+  -> Maybe Type.QueryString
+  -> Maybe [Type.Order]
+  -> ClientM Response.FileList
+createDriveFileMultipart' ::
+     Maybe Bearer
+  -> Maybe Text
+  -> Form.MultipartBody
+  -> ClientM Response.FileResource
+downloadDriveFile' ::
+     Type.FileId
+  -> Maybe Bearer
+  -> Maybe Type.ConversionFormat
+  -> ClientM Type.MediaContent
+getToken'
+  :<|> getCalendarEventList'
+  :<|> postCalendarEvent'
+  :<|> postGmailSend'
+  :<|> getDriveFileList'
+  :<|> createDriveFileMultipart'
+  :<|> downloadDriveFile'
+  = client api
 
 getToken ::
      Maybe JWT.Email
@@ -179,6 +223,45 @@ postGmailSend token email = do
   let gmailSend = Form.GmailSend {raw = decodeUtf8 $ encode $ LBS.toStrict mail}
   runClientM
     (postGmailSend' (pure . toBearer $ token) gmailSend)
+    (mkClientEnv manager googleBaseUrl)
+
+getDriveFileList ::
+     Response.Token
+  -> Form.GetFileParams
+  -> IO (Either ServantError Response.FileList)
+getDriveFileList token Form.GetFileParams{..} = do
+  manager <- newManager tlsManagerSettings
+  runClientM
+    (getDriveFileList'
+       (pure . toBearer $ token)
+       query
+       orderBy)
+    (mkClientEnv manager googleBaseUrl)
+
+createDriveFileMultipart ::
+     Response.Token
+  -> Form.MultipartBody
+  -> IO (Either ServantError Response.FileResource)
+createDriveFileMultipart token body = do
+  manager <- newManager tlsManagerSettings
+  runClientM
+    (createDriveFileMultipart'
+      (pure . toBearer $ token)
+      (Just "multipart")
+      body)
+    (mkClientEnv manager googleBaseUrl)
+
+downloadDriveFile ::
+     Response.Token
+  -> Form.DownloadFileParams
+  -> IO (Either ServantError Response.MediaContent)
+downloadDriveFile token Form.DownloadFileParams {..} = do
+  manager <- newManager tlsManagerSettings
+  runClientM
+    (downloadDriveFile'
+       fileId
+       (pure . toBearer $ token)
+       (Just conversionFormat))
     (mkClientEnv manager googleBaseUrl)
 
 toBearer :: Response.Token -> Bearer

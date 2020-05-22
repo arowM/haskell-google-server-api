@@ -12,24 +12,43 @@ module Google.Form
   , DateTime(..)
   , Email(..)
   , toMail
+  , MultipartBody(..)
+  , GetFileParams(..)
+  , DownloadFileParams(..)
   , Token(..)
   ) where
 
+import Data.Aeson (encode)
 import Data.Aeson.TH (defaultOptions, deriveJSON)
+import qualified Data.ByteString.Base64 as BSB
+import qualified Data.ByteString.Lazy as LBS
 import Data.Maybe (maybeToList)
 import Data.Monoid ((<>))
 import Data.String (IsString(..))
 import Data.Text (Text)
+import Data.Text.Encoding (encodeUtf8)
 import Data.Text.Lazy (fromStrict)
 import Data.Time.Clock (UTCTime)
 import Data.Typeable (Typeable)
 import GHC.Generics (Generic)
 import Network.Mail.Mime (Address(..), Mail(..), renderAddress, simpleMail)
+import Servant.API (MimeRender(..))
 import Web.FormUrlEncoded (Form(..), ToForm(toForm))
 import Web.Internal.HttpApiData (toQueryParam)
 import Web.HttpApiData (ToHttpApiData(..))
-
 import qualified Data.HashMap.Strict as HashMap
+
+import Google.Type
+  ( ConversionFormat
+  , FileId
+  , MediaContent(..)
+  , MediaType(..)
+  , Metadata
+  , Multipart
+  , Order
+  , QueryString
+  )
+
 
 data Account = Account
   { email :: Text
@@ -106,3 +125,40 @@ data GmailSend = GmailSend
   } deriving (Eq, Generic, Show, Typeable)
 
 deriveJSON defaultOptions ''GmailSend
+
+
+data GetFileParams = GetFileParams
+  { query :: Maybe QueryString
+  , orderBy :: Maybe [Order]
+  } deriving (Eq, Generic, Show, Typeable)
+
+
+data MultipartBody = MultipartBody
+  { metadata :: Metadata
+  , mediaType :: MediaType
+  , mediaContent :: MediaContent
+  } deriving (Eq, Generic, Show, Typeable)
+
+instance MimeRender Multipart MultipartBody where
+  mimeRender _ MultipartBody{..} =
+    mconcat
+      [ "\r\n--" <> boundary <> "\r\n"
+      , "Content-Type: application/json; charset=UTF-8"
+      , "\r\n\r\n"
+      , encode metadata
+      , "\r\n--" <> boundary <> "\r\n"
+      , "Content-Type: " <> (LBS.fromStrict $ encodeUtf8 $ mediaTypeName mediaType)
+      , "\r\n"
+      , "Content-Transfer-Encoding: base64"
+      , "\r\n\r\n"
+      , LBS.fromStrict $ BSB.encode $ (content mediaContent)
+      , "\r\n--" <> boundary <> "--"
+      ]
+    where
+      boundary = "314159265358979323846"
+
+
+data DownloadFileParams = DownloadFileParams
+  { fileId :: FileId
+  , conversionFormat :: ConversionFormat
+  } deriving (Eq, Generic, Show, Typeable)

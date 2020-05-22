@@ -5,7 +5,18 @@ Module      :  Google.Response
 
 Define data types to represent all of the responses that are received from the Google API.
 -}
-module Google.Response where
+module Google.Response
+  ( Token(..)
+  , Account(..)
+  , DateTime(..)
+  , ZonedDateTime(..)
+  , CalendarEvent(..)
+  , CalendarEventList(..)
+  , GmailSend(..)
+  , FileResource(..)
+  , FileList(..)
+  , MediaContent(..)
+  ) where
 
 import Data.Aeson.Casing (snakeCase)
 import Data.Aeson.TH (Options(..), defaultOptions, deriveJSON)
@@ -17,6 +28,9 @@ import Web.FormUrlEncoded (FromForm, ToForm)
 import Data.Time.Clock (UTCTime)
 import Data.Time.LocalTime (ZonedTime, zonedTimeToUTC)
 import Web.HttpApiData (FromHttpApiData(..), ToHttpApiData(..), parseUrlPieces, toUrlPieces)
+
+import Google.Type (FileId, MediaType, MediaContent(..))
+
 
 data Token = Token
   { accessToken :: Text
@@ -66,7 +80,6 @@ instance Eq ZonedDateTime where
         (toUTC x) == (toUTC y)
     )
 
-
 data CalendarEvent = CalendarEvent
   { status :: Text
   , creator :: Account
@@ -102,3 +115,21 @@ deriveJSON defaultOptions ''GmailSend
 instance FromForm GmailSend
 
 instance ToForm GmailSend
+
+
+data FileResource = FileResource
+  { kind :: Text
+  , id :: FileId
+  , name :: Text
+  , mimeType :: MediaType
+  } deriving (Eq, Generic, Show, Typeable)
+
+deriveJSON defaultOptions ''FileResource
+
+
+data FileList = FileList
+  { kind :: Text
+  , files :: [FileResource]
+  } deriving (Eq, Generic, Show, Typeable)
+
+deriveJSON defaultOptions ''FileList
