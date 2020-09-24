@@ -75,6 +75,7 @@ newtype Email = Email
 data Scope
   = ScopeCalendarFull
   | ScopeCalendarRead
+  | ScopeGmailFull
   | ScopeGmailSend
   | ScopeDriveFile
   | ScopeDriveMetadataRead
@@ -87,6 +88,7 @@ scopeUrl :: Scope -> Text
 scopeUrl ScopeCalendarFull = "https://www.googleapis.com/auth/calendar"
 scopeUrl ScopeCalendarRead = "https://www.googleapis.com/auth/calendar.readonly"
 scopeUrl ScopeGmailSend = "https://www.googleapis.com/auth/gmail.send"
+scopeUrl ScopeGmailFull = "https://www.googleapis.com/auth/gmail"
 scopeUrl ScopeDriveFile = "https://www.googleapis.com/auth/drive.file"
 scopeUrl ScopeDriveMetadataRead = "https://www.googleapis.com/auth/drive.metadata.readonly"
 

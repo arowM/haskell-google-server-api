@@ -16,6 +16,7 @@ module Google.Type
   , SortKey(..)
   , QueryString(..)
   , Order(..)
+  , LabelId(..)
   ) where
 
 import Data.Aeson.TH (Options(..), defaultOptions, deriveJSON)
@@ -172,4 +173,10 @@ instance ToHttpApiData Order where
   toUrlPiece (Desc key) = toUrlPiece key <> " desc"
 
 instance ToHttpApiData [Order] where
+  toUrlPiece = (intercalate ",") . toUrlPieces
+
+newtype LabelId = LabelId Text
+  deriving (Eq, Generic, Show, Typeable, ToHttpApiData)
+
+instance ToHttpApiData [LabelId] where
   toUrlPiece = (intercalate ",") . toUrlPieces

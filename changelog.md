@@ -1,3 +1,9 @@
+# 0.3.3.0
+
+### Improvements
+
+* Add `getGmailList`, `getGmailMessage`, and their associated `ScopeGmailFull`
+
 # 0.3.2.1
 
 ### Bug fix

@@ -12,6 +12,8 @@ module Google.Client
   , getCalendarEventList
   , postCalendarEvent
   , postGmailSend
+  , getGmailList
+  , getGmailMessage
   , getDriveFileList
   , createDriveFileMultipart
   , downloadDriveFile
@@ -105,6 +107,14 @@ type API
     Header "Authorization" Bearer :>
     ReqBody '[ JSON] Form.GmailSend :>
     Post '[ JSON] Response.GmailSend
+  :<|> "gmail" :> "v1" :> "users" :> "me" :> "messages" :>
+    Header "Authorization" Bearer :>
+    QueryParam "maxResults" Int :>
+    QueryParam "labelIds" [Type.LabelId] :>
+    Get '[ JSON] Response.GmailList
+  :<|> "gmail" :> "v1" :> "users" :> "me" :> "messages" :> Capture "messageId" Text :>
+    Header "Authorization" Bearer :>
+    Get '[ JSON] Response.GmailMessage
   :<|> "drive":> "v3" :> "files" :>
     Header "Authorization" Bearer :>
     QueryParam "q" Type.QueryString :>
@@ -142,6 +152,8 @@ postCalendarEvent' ::
   -> Form.CalendarEvent
   -> ClientM Response.CalendarEvent
 postGmailSend' :: Maybe Bearer -> Form.GmailSend -> ClientM Response.GmailSend
+getGmailList' :: Maybe Bearer -> Maybe Int -> Maybe [Type.LabelId] -> ClientM Response.GmailList
+getGmailMessage' :: Text -> Maybe Bearer -> ClientM Response.GmailMessage
 getDriveFileList' ::
      Maybe Bearer
   -> Maybe Type.QueryString
@@ -161,6 +173,8 @@ getToken'
   :<|> getCalendarEventList'
   :<|> postCalendarEvent'
   :<|> postGmailSend'
+  :<|> getGmailList'
+  :<|> getGmailMessage'
   :<|> getDriveFileList'
   :<|> createDriveFileMultipart'
   :<|> downloadDriveFile'
@@ -223,6 +237,22 @@ postGmailSend token email = do
   let gmailSend = Form.GmailSend {raw = decodeUtf8 $ encode $ LBS.toStrict mail}
   runClientM
     (postGmailSend' (pure . toBearer $ token) gmailSend)
+    (mkClientEnv manager googleBaseUrl)
+
+getGmailList ::
+     Response.Token -> Maybe Int -> Maybe [Type.LabelId] -> IO (Either ClientError Response.GmailList)
+getGmailList token maxResults labelIds = do
+  manager <- newManager tlsManagerSettings
+  runClientM
+    (getGmailList' (pure . toBearer $ token) maxResults labelIds)
+    (mkClientEnv manager googleBaseUrl)
+
+getGmailMessage ::
+     Response.Token -> Text -> IO (Either ClientError Response.GmailMessage)
+getGmailMessage token messageId = do
+  manager <- newManager tlsManagerSettings
+  runClientM
+    (getGmailMessage' messageId (pure . toBearer $ token))
     (mkClientEnv manager googleBaseUrl)
 
 getDriveFileList ::

@@ -13,6 +13,8 @@ module Google.Response
   , CalendarEvent(..)
   , CalendarEventList(..)
   , GmailSend(..)
+  , GmailList(..)
+  , GmailMessage(..)
   , FileResource(..)
   , FileList(..)
   , MediaContent(..)
@@ -116,6 +118,21 @@ instance FromForm GmailSend
 
 instance ToForm GmailSend
 
+data GmailMessage = GmailMessage
+  { id :: Text
+  , threadId :: Text
+  , snippet :: Maybe Text
+  } deriving (Eq, Generic, Show, Typeable)
+deriveJSON defaultOptions ''GmailMessage
+
+instance FromForm GmailMessage
+
+instance ToForm GmailMessage
+
+data GmailList = GmailList
+  { messages :: [GmailMessage]
+  } deriving (Eq, Generic, Show, Typeable)
+deriveJSON defaultOptions ''GmailList
 
 data FileResource = FileResource
   { kind :: Text
