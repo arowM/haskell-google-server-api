@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 -- | Create a signed JWT needed to make the access token request
 -- to gain access to Google APIs for server to server applications.
 --
@@ -30,7 +31,9 @@ import Data.ByteString.Base64.URL (encode)
 import qualified Data.ByteString.Lazy as LBS
 import Data.ByteString.Lazy (fromStrict, toStrict)
 import Data.Maybe (fromJust, fromMaybe)
+#if !MIN_VERSION_base(4, 9, 0)
 import Data.Monoid ((<>))
+#endif
 import Data.Text (Text)
 import qualified Data.Text as T
 import Data.Text.Encoding (encodeUtf8)
@@ -148,7 +151,7 @@ getSignedJWT JWT {..} msub scs mxt = do
           ]
   return $
     either
-      (fail "RSAError")
+      (\err -> Left $ "RSAError: " <> show err)
       (\s -> return $ SignedJWT $ i <> "." <> encode (toStrict s))
       (rsassa_pkcs1_v1_5_sign hashSHA256 privateKey $ fromStrict i)
   where

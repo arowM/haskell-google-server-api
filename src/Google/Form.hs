@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE TemplateHaskell #-}
 
 {- |
@@ -23,7 +24,9 @@ import Data.Aeson.TH (defaultOptions, deriveJSON)
 import qualified Data.ByteString.Base64 as BSB
 import qualified Data.ByteString.Lazy as LBS
 import Data.Maybe (maybeToList)
+#if !MIN_VERSION_base(4, 9, 0)
 import Data.Monoid ((<>))
+#endif
 import Data.String (IsString(..))
 import Data.Text (Text)
 import Data.Text.Encoding (encodeUtf8)
@@ -34,7 +37,6 @@ import GHC.Generics (Generic)
 import Network.Mail.Mime (Address(..), Mail(..), renderAddress, simpleMail)
 import Servant.API (MimeRender(..))
 import Web.FormUrlEncoded (Form(..), ToForm(toForm))
-import Web.Internal.HttpApiData (toQueryParam)
 import Web.HttpApiData (ToHttpApiData(..))
 import qualified Data.HashMap.Strict as HashMap
 

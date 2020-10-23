@@ -23,7 +23,9 @@ import Data.Aeson (FromJSON, ToJSON)
 import Data.ByteString.Base64.URL (encode)
 import qualified Data.ByteString.Lazy as LBS
 import Data.Data (Data)
+#if !MIN_VERSION_base(4, 9, 0)
 import Data.Monoid ((<>))
+#endif
 import Data.Proxy (Proxy(..))
 import Data.Text (Text)
 import Data.Text.Encoding (decodeUtf8)
@@ -258,7 +260,7 @@ getGmailMessage token messageId = do
 getDriveFileList ::
      Response.Token
   -> Form.GetFileParams
-  -> IO (Either ServantError Response.FileList)
+  -> IO (Either ClientError Response.FileList)
 getDriveFileList token Form.GetFileParams{..} = do
   manager <- newManager tlsManagerSettings
   runClientM
@@ -271,7 +273,7 @@ getDriveFileList token Form.GetFileParams{..} = do
 createDriveFileMultipart ::
      Response.Token
   -> Form.MultipartBody
-  -> IO (Either ServantError Response.FileResource)
+  -> IO (Either ClientError Response.FileResource)
 createDriveFileMultipart token body = do
   manager <- newManager tlsManagerSettings
   runClientM
@@ -284,7 +286,7 @@ createDriveFileMultipart token body = do
 downloadDriveFile ::
      Response.Token
   -> Form.DownloadFileParams
-  -> IO (Either ServantError Response.MediaContent)
+  -> IO (Either ClientError Response.MediaContent)
 downloadDriveFile token Form.DownloadFileParams {..} = do
   manager <- newManager tlsManagerSettings
   runClientM
