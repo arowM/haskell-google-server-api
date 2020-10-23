@@ -25,7 +25,7 @@ import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as LBS
 import Data.Char (toLower)
 import Data.List.NonEmpty (NonEmpty((:|)))
-#if !MIN_VERSION_base(4, 9, 0)
+#if !MIN_VERSION_base(4, 11, 0)
 import Data.Monoid ((<>))
 #endif
 import Data.Text (Text, intercalate)

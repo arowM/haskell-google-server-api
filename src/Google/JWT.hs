@@ -31,7 +31,7 @@ import Data.ByteString.Base64.URL (encode)
 import qualified Data.ByteString.Lazy as LBS
 import Data.ByteString.Lazy (fromStrict, toStrict)
 import Data.Maybe (fromJust, fromMaybe)
-#if !MIN_VERSION_base(4, 9, 0)
+#if !MIN_VERSION_base(4, 11, 0)
 import Data.Monoid ((<>))
 #endif
 import Data.Text (Text)

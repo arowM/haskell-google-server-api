@@ -23,7 +23,7 @@ import Data.Aeson (FromJSON, ToJSON)
 import Data.ByteString.Base64.URL (encode)
 import qualified Data.ByteString.Lazy as LBS
 import Data.Data (Data)
-#if !MIN_VERSION_base(4, 9, 0)
+#if !MIN_VERSION_base(4, 11, 0)
 import Data.Monoid ((<>))
 #endif
 import Data.Proxy (Proxy(..))

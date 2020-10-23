@@ -24,7 +24,7 @@ import Data.Aeson.TH (defaultOptions, deriveJSON)
 import qualified Data.ByteString.Base64 as BSB
 import qualified Data.ByteString.Lazy as LBS
 import Data.Maybe (maybeToList)
-#if !MIN_VERSION_base(4, 9, 0)
+#if !MIN_VERSION_base(4, 11, 0)
 import Data.Monoid ((<>))
 #endif
 import Data.String (IsString(..))
