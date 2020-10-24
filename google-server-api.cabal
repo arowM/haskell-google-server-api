@@ -4,10 +4,10 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: dee0e3566da0a72f9d47c329ab42557027a790caef357d0eef17f804d917b7e1
+-- hash: a0f7961e20660b0657db7262b80d50981c8e43c6eb3f88bfc556e0010bf9dc0b
 
 name:           google-server-api
-version:        0.3.3.0
+version:        0.3.3.1
 synopsis:       Google APIs for server to server applications
 description:    This library provides a way to use Google API for server to server applications.
 category:       Web
