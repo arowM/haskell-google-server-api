@@ -84,6 +84,7 @@ instance Eq ZonedDateTime where
 
 data CalendarEvent = CalendarEvent
   { status :: Text
+  , organizer :: Account
   , creator :: Account
   , attendees :: Maybe [Account]
   , summary :: Maybe Text
