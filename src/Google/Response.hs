@@ -20,10 +20,13 @@ module Google.Response
   , MediaContent(..)
   ) where
 
+import Data.Aeson (FromJSON(..), (.:?), withObject)
 import Data.Aeson.Casing (snakeCase)
-import Data.Aeson.TH (Options(..), defaultOptions, deriveJSON)
-import Data.Text (Text)
-import Data.Text (intercalate, splitOn)
+import Data.Aeson.TH (Options(..), defaultOptions, deriveFromJSON, deriveJSON)
+import Data.HashMap.Strict (HashMap)
+import qualified Data.HashMap.Strict as HashMap
+import Data.Maybe (fromMaybe)
+import Data.Text (Text, intercalate, splitOn)
 import Data.Typeable (Typeable)
 import GHC.Generics (Generic)
 import Web.FormUrlEncoded (FromForm, ToForm)
@@ -82,6 +85,17 @@ instance Eq ZonedDateTime where
         (toUTC x) == (toUTC y)
     )
 
+data ExtendedProperties = ExtendedProperties
+  { private :: HashMap Text Text
+  , shared :: HashMap Text Text
+  } deriving (Eq, Generic, Show, Typeable)
+
+instance FromJSON ExtendedProperties where
+  parseJSON = withObject "ExtendedProperties" $ \v ->
+    ExtendedProperties
+      <$> (fromMaybe HashMap.empty <$> v .:? "private")
+      <*> (fromMaybe HashMap.empty <$> v .:? "shared")
+
 data CalendarEvent = CalendarEvent
   { status :: Text
   , organizer :: Account
@@ -91,13 +105,10 @@ data CalendarEvent = CalendarEvent
   , description :: Maybe Text
   , start :: Maybe ZonedDateTime
   , end :: Maybe ZonedDateTime
+  , extendedProperties :: Maybe ExtendedProperties
   } deriving (Eq, Generic, Show, Typeable)
 
-deriveJSON defaultOptions ''CalendarEvent
-
-instance FromForm CalendarEvent
-
-instance ToForm CalendarEvent
+deriveFromJSON defaultOptions ''CalendarEvent
 
 
 data CalendarEventList = CalendarEventList
@@ -106,7 +117,7 @@ data CalendarEventList = CalendarEventList
   , items :: [CalendarEvent]
   } deriving (Eq, Generic, Show, Typeable)
 
-deriveJSON defaultOptions ''CalendarEventList
+deriveFromJSON defaultOptions ''CalendarEventList
 
 
 data GmailSend = GmailSend

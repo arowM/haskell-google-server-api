@@ -11,6 +11,8 @@ module Google.Form
   , GmailSend(..)
   , Account(..)
   , DateTime(..)
+  , ExtendedProperty(..)
+  , ExtendedProperties(..)
   , Email(..)
   , toMail
   , MultipartBody(..)
@@ -38,6 +40,7 @@ import Network.Mail.Mime (Address(..), Mail(..), renderAddress, simpleMail)
 import Servant.API (MimeRender(..))
 import Web.FormUrlEncoded (Form(..), ToForm(toForm))
 import Web.HttpApiData (ToHttpApiData(..))
+import Data.HashMap.Strict (HashMap)
 import qualified Data.HashMap.Strict as HashMap
 
 import Google.Type
@@ -67,6 +70,21 @@ newtype DateTime = DateTime
 
 deriveJSON defaultOptions ''DateTime
 
+newtype ExtendedProperty = ExtendedProperty
+  { pair :: (Text, Text)
+  } deriving (Eq, Generic, Show, Typeable)
+
+instance ToHttpApiData ExtendedProperty where
+  toQueryParam ExtendedProperty {..} =
+    fst pair <> "=" <> snd pair
+
+data ExtendedProperties = ExtendedProperties
+  { private :: HashMap Text Text
+  , shared :: HashMap Text Text
+  } deriving (Eq, Generic, Show, Typeable)
+
+deriveJSON defaultOptions ''ExtendedProperties
+
 data CalendarEvent = CalendarEvent
   { creator :: Account
   , attendees :: [Account]
@@ -74,6 +92,7 @@ data CalendarEvent = CalendarEvent
   , description :: Text
   , start :: DateTime
   , end :: DateTime
+  , extendedProperties :: Maybe ExtendedProperties
   } deriving (Eq, Generic, Show, Typeable)
 
 deriveJSON defaultOptions ''CalendarEvent
