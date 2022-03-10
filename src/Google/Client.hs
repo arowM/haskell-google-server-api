@@ -45,6 +45,7 @@ import Servant.API
   , JSON
   , Post
   , QueryParam
+  , QueryParams
   , ReqBody
   , ToHttpApiData
   )
@@ -67,6 +68,7 @@ import Google.JWT (JWT)
 import qualified Google.JWT as JWT
 import qualified Google.Response as Response
 import qualified Google.Type as Type
+import Google.Form (ExtendedProperty)
 
 #if !MIN_VERSION_servant(0, 16, 0)
 type ClientError = ServantError
@@ -98,6 +100,8 @@ type API
     QueryParam "timeMin" Form.DateTime :>
     QueryParam "timeMax" Form.DateTime :>
     QueryParam "orderBy" Text :>
+    QueryParams "privateExtendedProperty" ExtendedProperty :>
+    QueryParams "sharedExtendedProperty" ExtendedProperty :>
     Get '[ JSON] Response.CalendarEventList
   :<|> "calendar" :> "v3" :> "calendars" :>
     Capture "calendarId" Text :>
@@ -147,6 +151,8 @@ getCalendarEventList' ::
   -> Maybe Form.DateTime
   -> Maybe Form.DateTime
   -> Maybe Text
+  -> [ExtendedProperty]
+  -> [ExtendedProperty]
   -> ClientM Response.CalendarEventList
 postCalendarEvent' ::
      Text
@@ -205,8 +211,10 @@ getCalendarEventList ::
   -> Maybe Form.DateTime
   -> Maybe Form.DateTime
   -> Maybe Text
+  -> [ExtendedProperty]
+  -> [ExtendedProperty]
   -> IO (Either ClientError Response.CalendarEventList)
-getCalendarEventList token calendarId singleEvents timeMin timeMax orderBy = do
+getCalendarEventList token calendarId singleEvents timeMin timeMax orderBy privateExtendedProperties sharedExtendedProperties = do
   manager <- newManager tlsManagerSettings
   runClientM
     (getCalendarEventList'
@@ -215,7 +223,9 @@ getCalendarEventList token calendarId singleEvents timeMin timeMax orderBy = do
        singleEvents
        timeMin
        timeMax
-       orderBy)
+       orderBy
+       privateExtendedProperties
+       sharedExtendedProperties)
     (mkClientEnv manager googleBaseUrl)
 
 postCalendarEvent ::
