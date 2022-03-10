@@ -1,3 +1,9 @@
+# 0.4.0.0
+
+### Improvements
+
+* Add support for extended properties in the calendar insert/list event
+
 # 0.3.3.0
 
 ### Improvements
