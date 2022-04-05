@@ -15,7 +15,6 @@ module Google.Response
   , GmailSend(..)
   , GmailList(..)
   , GmailMessage(..)
-  , ExtendedProperties(..)
   , FileResource(..)
   , FileList(..)
   , MediaContent(..)
