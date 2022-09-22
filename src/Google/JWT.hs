@@ -82,6 +82,7 @@ data Scope
   | ScopeGmailSend
   | ScopeDriveFile
   | ScopeDriveMetadataRead
+  | ScopeSpreadsheets
   deriving (Eq, Show, Read, Ord)
 
 {-| Make sure if you added new scope, update configuration in page bellow.
@@ -94,6 +95,7 @@ scopeUrl ScopeGmailSend = "https://www.googleapis.com/auth/gmail.send"
 scopeUrl ScopeGmailFull = "https://www.googleapis.com/auth/gmail"
 scopeUrl ScopeDriveFile = "https://www.googleapis.com/auth/drive.file"
 scopeUrl ScopeDriveMetadataRead = "https://www.googleapis.com/auth/drive.metadata.readonly"
+scopeUrl ScopeSpreadsheets = "https://www.googleapis.com/auth/spreadsheets"
 
 -- | Get the private key obtained from the
 -- Google API Console from a PEM 'String'.
