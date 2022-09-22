@@ -1,3 +1,8 @@
+# 0.4.1.0
+
+* Support Spreadsheets scope.
+    * https://github.com/arowM/haskell-google-server-api/pull/7
+
 # 0.4.0.1
 
 Support latest stackage nightly
