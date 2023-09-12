@@ -81,7 +81,7 @@ instance Eq ZonedDateTime where
     (\x y ->
       let
         toUTC :: ZonedDateTime -> Maybe UTCTime
-        toUTC = (fmap zonedTimeToUTC) . (dateTime :: ZonedDateTime -> Maybe ZonedTime)
+        toUTC (ZonedDateTime z) = fmap zonedTimeToUTC z
       in
         (toUTC x) == (toUTC y)
     )
